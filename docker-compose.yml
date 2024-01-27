@@ -1,0 +1,36 @@
+version: '3.9'
+services:
+  php-env:
+    build:
+      context: .  
+      dockerfile: Dockerfile 
+    volumes:
+      - ./public:/var/www/html
+    ports:
+      - 9000:80
+    depends_on:
+      - mysql_db
+  mysql_db:
+    image: mysql:latest
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+  phpmyadmin:
+    image: phpmyadmin:latest
+    restart: always
+    ports:
+      - 9001:80
+    environment:
+      PMA_ARBITRARY: 1  
+    depends_on:
+      - mysql_db
+  xdebug:
+    image: php:latest
+    ports:
+      - 9002:9002
+    volumes:
+      - ./public:/var/www/html
+    command: "tail -f /dev/null"  # Mantém o contêiner em execução
+    depends_on:
+      - php-env
